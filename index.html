@@ -601,7 +601,7 @@
 
             // Process each guild member
             distributionData = guildData.map(member => {
-                const name = member.Name;
+                const name = member['Member Name'] || member.Name;
                 const attempts = parseInt(member.Attempts) || 0;
                 const wedPoints = wedMap.get(name) || 0;
                 const friPoints = friMap.get(name) || 0;
