@@ -575,6 +575,17 @@
             const wedBoxes = parseInt(document.getElementById('wedRanking').value);
             const friBoxes = parseInt(document.getElementById('friRanking').value);
 
+            console.log('Guild data rows:', guildData.length);
+            console.log('Wednesday data rows:', wednesdayData.length);
+            console.log('Friday data rows:', fridayData.length);
+            
+            if (guildData.length > 0) {
+                console.log('Sample guild member:', guildData[0]);
+            }
+            if (wednesdayData.length > 0) {
+                console.log('Sample wednesday data:', wednesdayData[0]);
+            }
+
             // Create lookup maps for attendance data
             const wedMap = new Map();
             wednesdayData.forEach(row => {
@@ -606,6 +617,8 @@
                     friStatus: ''
                 };
             });
+
+            console.log('Distribution data rows:', distributionData.length);
 
             // Calculate Wednesday distribution
             distributeBoxes(distributionData, 'wed', wedBoxes);
