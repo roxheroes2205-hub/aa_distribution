@@ -534,9 +534,11 @@
             const statusMsg = document.getElementById('statusMessage');
             const loadBtn = document.getElementById('loadDataBtn');
 
-            loadBtn.disabled = true;
-            statusMsg.className = 'status-message info';
-            statusMsg.textContent = '⏳ Loading data from Google Sheets...';
+            if (loadBtn) loadBtn.disabled = true;
+            if (statusMsg) {
+                statusMsg.className = 'status-message info';
+                statusMsg.textContent = '⏳ Loading data from Google Sheets...';
+            }
 
             try {
                 // Load all three datasets from different sheets
@@ -550,18 +552,22 @@
                 wednesdayData = wedData;
                 fridayData = friData;
 
-                statusMsg.className = 'status-message success';
-                statusMsg.textContent = `✅ Data loaded successfully! Guild: ${guildData.length} members, Wed: ${wednesdayData.length} participants, Fri: ${fridayData.length} participants`;
+                if (statusMsg) {
+                    statusMsg.className = 'status-message success';
+                    statusMsg.textContent = `✅ Data loaded successfully! Guild: ${guildData.length} members, Wed: ${wednesdayData.length} participants, Fri: ${fridayData.length} participants`;
+                }
 
                 // Calculate and display distribution
                 calculateDistribution();
 
             } catch (error) {
-                statusMsg.className = 'status-message error';
-                statusMsg.textContent = `❌ Error loading data: ${error.message}. Please check the data source.`;
+                if (statusMsg) {
+                    statusMsg.className = 'status-message error';
+                    statusMsg.textContent = `❌ Error loading data: ${error.message}. Please check the data source.`;
+                }
                 console.error('Error loading data:', error);
             } finally {
-                loadBtn.disabled = false;
+                if (loadBtn) loadBtn.disabled = false;
             }
         }
 
@@ -750,8 +756,6 @@
         }
 
         // Event listeners
-        document.getElementById('loadDataBtn').addEventListener('click', loadData);
-
         document.getElementById('wedRanking').addEventListener('change', () => {
             if (guildData.length > 0) calculateDistribution();
         });
