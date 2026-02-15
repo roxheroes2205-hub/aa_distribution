@@ -365,23 +365,6 @@
         <h1>🎮 AA Chest Distribution Manager</h1>
         <p class="subtitle">Automated reward distribution based on Abyssal Arcade performance</p>
 
-        <div class="config-section">
-            <h2>📊 Data Source</h2>
-            <div class="instructions">
-                <h3>📋 Data automatically loads from Google Sheets</h3>
-                <p>The distribution manager fetches data from three tabs in your published spreadsheet:</p>
-                <ul>
-                    <li><strong>Tab 1 (GID=0):</strong> Guild Members</li>
-                    <li><strong>Tab 2 (GID=1):</strong> Wednesday AA</li>
-                    <li><strong>Tab 3 (GID=2):</strong> Friday AA</li>
-                </ul>
-                <p>Update your Google Sheet and click refresh to see the latest data.</p>
-            </div>
-
-            <button class="load-button" id="loadDataBtn">🔄 Refresh Data from Google Sheets</button>
-            <div class="status-message" id="statusMessage"></div>
-        </div>
-
         <div class="controls">
             <div class="control-group">
                 <label for="wedRanking">Wednesday Ranking:</label>
@@ -539,9 +522,9 @@
         const SPREADSHEET_ID = '2PACX-1vTrBAabijSXXurqd_bp5i-_JhmzzMvwCNUNyIwQy6mBTAiNjfalcUsCqRMiC917lCbC7gAwjWDGhJbD';
         
         // GIDs for each sheet tab
-        const GUILD_GID = '0';      // Guild Members (first tab)
-        const WED_GID = '1';        // Wednesday AA (second tab)
-        const FRI_GID = '2';        // Friday AA (third tab)
+        const GUILD_GID = '0';           // Guild Members (first tab)
+        const WED_GID = '793464544';     // Wednesday AA (second tab)
+        const FRI_GID = '227803825';     // Friday AA (third tab)
         
         const GUILD_URL = `https://docs.google.com/spreadsheets/d/e/${SPREADSHEET_ID}/pub?gid=${GUILD_GID}&single=true&output=csv`;
         const WED_URL = `https://docs.google.com/spreadsheets/d/e/${SPREADSHEET_ID}/pub?gid=${WED_GID}&single=true&output=csv`;
