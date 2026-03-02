@@ -144,6 +144,39 @@
             display: block;
         }
 
+        .rank-instruction {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .rank-instruction .icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rank-instruction .text {
+            color: #555;
+        }
+
+        .rank-instruction .text strong {
+            color: #e65100;
+            display: block;
+            font-size: 1em;
+            margin-bottom: 4px;
+        }
+
+        .rank-instruction .text span {
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
         .controls {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -365,6 +398,14 @@
         <h1>🎮 AA Chest Distribution Manager</h1>
         <p class="subtitle">Automated reward distribution based on Abyssal Arcade performance</p>
 
+        <div class="rank-instruction">
+            <div class="icon">⚠️</div>
+            <div class="text">
+                <strong>Action Required: Select the correct Guild Rank before reviewing distribution</strong>
+                <span>The number of boxes available to distribute depends on the guild's rank for each AA event. Please select the rank achieved for <b>Wednesday</b> and <b>Friday</b> below before reading the box allocations. Changing the rank will instantly recalculate the entire table.</span>
+            </div>
+        </div>
+
         <div class="controls">
             <div class="control-group">
                 <label for="wedRanking">Wednesday Ranking:</label>
@@ -447,27 +488,6 @@
         let distributionData = [];
         let currentSort = { column: 'attempts', ascending: false };
 
-        // Name mapping for known discrepancies
-        const nameMapping = {
-            'SONIC✗': 'SONIC ✗',
-            'Artemis': 'Artemis ζ',
-            'Artemis ☾': 'Artemis ζ',
-            'SnowMan': '※ SnowMan ※',
-            'B₁₁CₖB₃₃ᵣd': 'B₁ₐCₖB₃ard',
-            'B₁₈C₄B₃₃rd': 'B₁ₐCₖB₃ard',
-            'Valkyrie': 'Valkkyrie',
-            'Elysia✿': 'Elysia ❀',
-            '-Grimmjow-': '-Grimmjów-',
-            'MILIM · NAVA': 'MILIM・NAVA',
-            'ꀧRagingꀤ': 'ῶRagingῒ',
-            'BigMacCombao': 'BigMacCombo',
-            'Cwees': 'BigMacCombo'
-        };
-
-        function normalizeMemberName(name) {
-            return nameMapping[name] || name;
-        }
-
         async function fetchCSV(url) {
             const response = await fetch(url);
             if (!response.ok) {
@@ -541,7 +561,6 @@
             }
 
             try {
-                // Load all three datasets from different sheets
                 const [guild, wedData, friData] = await Promise.all([
                     fetchCSV(GUILD_URL),
                     fetchCSV(WED_URL),
@@ -557,7 +576,6 @@
                     statusMsg.textContent = `✅ Data loaded successfully! Guild: ${guildData.length} members, Wed: ${wednesdayData.length} participants, Fri: ${fridayData.length} participants`;
                 }
 
-                // Calculate and display distribution
                 calculateDistribution();
 
             } catch (error) {
@@ -575,31 +593,19 @@
             const wedBoxes = parseInt(document.getElementById('wedRanking').value);
             const friBoxes = parseInt(document.getElementById('friRanking').value);
 
-            console.log('Guild data rows:', guildData.length);
-            console.log('Wednesday data rows:', wednesdayData.length);
-            console.log('Friday data rows:', fridayData.length);
-            
-            if (guildData.length > 0) {
-                console.log('Sample guild member:', guildData[0]);
-            }
-            if (wednesdayData.length > 0) {
-                console.log('Sample wednesday data:', wednesdayData[0]);
-            }
-
-            // Create lookup maps for attendance data
+            // Create lookup maps using names directly — no remapping
             const wedMap = new Map();
             wednesdayData.forEach(row => {
-                const name = normalizeMemberName(row['Member Name'] || row.Name);
+                const name = row['Member Name'] || row.Name;
                 wedMap.set(name, parseInt(row.Points) || 0);
             });
 
             const friMap = new Map();
             fridayData.forEach(row => {
-                const name = normalizeMemberName(row['Member Name'] || row.Name);
+                const name = row['Member Name'] || row.Name;
                 friMap.set(name, parseInt(row.Points) || 0);
             });
 
-            // Process each guild member
             distributionData = guildData.map(member => {
                 const name = member['Member Name'] || member.Name;
                 const attempts = parseInt(member.Attempts) || 0;
@@ -618,15 +624,9 @@
                 };
             });
 
-            console.log('Distribution data rows:', distributionData.length);
-
-            // Calculate Wednesday distribution
             distributeBoxes(distributionData, 'wed', wedBoxes);
-            
-            // Calculate Friday distribution
             distributeBoxes(distributionData, 'fri', friBoxes);
 
-            // Calculate total boxes
             distributionData.forEach(member => {
                 member.totalBoxes = member.wedBoxes + member.friBoxes;
             });
@@ -640,8 +640,6 @@
             const boxesKey = `${day}Boxes`;
             const statusKey = `${day}Status`;
 
-            // Separate members into categories
-            const noBoxes = [];
             const oneBox = [];
             const eligible = [];
 
@@ -665,18 +663,13 @@
                 }
             });
 
-            // Calculate boxes for eligible members
-            const boxesForOneBox = oneBox.length;
-            const remainingBoxes = totalBoxes - boxesForOneBox;
+            const remainingBoxes = totalBoxes - oneBox.length;
             const eligibleCount = eligible.length;
 
             if (eligibleCount > 0 && remainingBoxes > 0) {
                 const boxesPerMember = Math.floor(remainingBoxes / eligibleCount);
                 eligible.forEach(member => {
-                    // Check if member has enough attempts
-                    const availableAttempts = member.attempts;
-                    member[boxesKey] = Math.min(boxesPerMember, availableAttempts);
-                    
+                    member[boxesKey] = Math.min(boxesPerMember, member.attempts);
                     if (member[boxesKey] < boxesPerMember) {
                         member[statusKey] = 'Limited by Attempts';
                     }
@@ -688,22 +681,18 @@
             const tbody = document.getElementById('tableBody');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-            // Filter data based on search
             let filteredData = distributionData.filter(member => 
                 member.name.toLowerCase().includes(searchTerm)
             );
 
-            // Sort data
             filteredData.sort((a, b) => {
                 let aVal = a[currentSort.column];
                 let bVal = b[currentSort.column];
 
-                // Handle numeric sorting
                 if (typeof aVal === 'number' && typeof bVal === 'number') {
                     return currentSort.ascending ? aVal - bVal : bVal - aVal;
                 }
 
-                // Handle string sorting
                 aVal = String(aVal).toLowerCase();
                 bVal = String(bVal).toLowerCase();
                 
@@ -768,7 +757,6 @@
             });
         }
 
-        // Event listeners
         document.getElementById('wedRanking').addEventListener('change', () => {
             if (guildData.length > 0) calculateDistribution();
         });
@@ -794,7 +782,6 @@
             });
         });
 
-        // Auto-load data on page load
         window.addEventListener('DOMContentLoaded', () => {
             loadData();
         });
